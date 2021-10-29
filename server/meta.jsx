@@ -15,6 +15,8 @@ type SDKMeta = {|
     getSDKLoader : (options? : {| baseURL? : string, nonce? : string |}) => string
 |};
 
+const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+
 function validatePaymentsSDKUrl({ pathname, query, hash }) {
 
     if (pathname !== SDK_PATH) {
@@ -37,9 +39,19 @@ function validatePaymentsSDKUrl({ pathname, query, hash }) {
             throw new TypeError(`Unexpected non-string key for sdk url: ${ key }`);
         }
 
-        if (!val.match(/^[a-zA-Z0-9_,-@.]+$/) && !val.match(/^\*$/)) {
+        if (!val.match(/^[a-zA-Z0-9+_,-@.]+$/) && !val.match(/^\*$/)) {
             throw new Error(`Unexpected characters in query key for sdk url: ${ key }=${ val }`);
         }
+
+        if (key === SDK_QUERY_KEYS.MERCHANT_ID) {
+            const merchantValues = val.split(",");
+            Array.from(merchantValues).forEach(aMerchantValue => {
+                if (aMerchantValue.includes("@") && !emailRegex.test(aMerchantValue)) {
+                    throw new Error(`Malformed. merchant email: ${aMerchantValue}`);
+                }
+            });
+        }
+
     }
 
     if (hash) {
