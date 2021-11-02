@@ -39,7 +39,7 @@ function validatePaymentsSDKUrl({ pathname, query, hash }) {
             throw new TypeError(`Unexpected non-string key for sdk url: ${ key }`);
         }
 
-        if (!val.match(/^[a-zA-Z0-9+_,-@.]+$/) && !val.match(/^\*$/)) {
+        if (!val.match(/^[a-zA-Z0-9+%_,-@.]+$/) && !val.match(/^\*$/)) {
             throw new Error(`Unexpected characters in query key for sdk url: ${ key }=${ val }`);
         }
 
@@ -107,7 +107,11 @@ function isLocalUrl(host : string) : boolean {
 }
 
 function validateSDKUrl(sdkUrl : string) {
-    const { protocol, host, hostname, pathname, query, hash } = urlLib.parse(sdkUrl, true);
+    const processedUrl = sdkUrl.replace(/merchant-id=([^\&$]+)/, (_val, match) => {
+        const merchantValue = encodeURIComponent(match).replace(/%40/g, "@").replace(/%3A/g, ":").replace(/%2C/g, ",");
+        return `merchant-id=${merchantValue}`
+    });
+    const { protocol, host, hostname, pathname, hash, query } = urlLib.parse(encodeURI(processedUrl), true);
 
     if (!hostname) {
         throw new Error(`Expected host to be passed for sdk url`);
