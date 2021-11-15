@@ -15,7 +15,8 @@ type SDKMeta = {|
     getSDKLoader : (options? : {| baseURL? : string, nonce? : string |}) => string
 |};
 
-const emailRegex = /^(.)+@(.)+$/i;
+const emailRegex = /^.+@.+$/;
+const emailMaxLengthRegex = /^.{1,64}$/
 
 function validatePaymentsSDKUrl({ pathname, query, hash }) {
 
@@ -46,7 +47,7 @@ function validatePaymentsSDKUrl({ pathname, query, hash }) {
         if (key === SDK_QUERY_KEYS.MERCHANT_ID) {
             const merchantValues = val.split(",");
             Array.from(merchantValues).forEach(aMerchantValue => {
-                if (aMerchantValue.length > 60) {
+                if (!emailMaxLengthRegex.test(aMerchantValue)) {
                     throw new Error(`Email is too long: ${aMerchantValue}`)
                 }
                 if (aMerchantValue.includes("@") && !emailRegex.test(aMerchantValue)) {
