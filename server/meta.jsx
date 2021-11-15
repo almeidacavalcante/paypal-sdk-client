@@ -15,7 +15,7 @@ type SDKMeta = {|
     getSDKLoader : (options? : {| baseURL? : string, nonce? : string |}) => string
 |};
 
-const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+const emailRegex = /^(.)+@(.)+$/i;
 
 function validatePaymentsSDKUrl({ pathname, query, hash }) {
 
@@ -46,6 +46,9 @@ function validatePaymentsSDKUrl({ pathname, query, hash }) {
         if (key === SDK_QUERY_KEYS.MERCHANT_ID) {
             const merchantValues = val.split(",");
             Array.from(merchantValues).forEach(aMerchantValue => {
+                if (aMerchantValue.length > 60) {
+                    throw new Error(`Email is too long: ${aMerchantValue}`)
+                }
                 if (aMerchantValue.includes("@") && !emailRegex.test(aMerchantValue)) {
                     throw new Error(`Malformed. merchant email: ${aMerchantValue}`);
                 }
