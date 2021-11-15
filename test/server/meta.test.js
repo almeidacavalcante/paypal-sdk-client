@@ -225,10 +225,10 @@ test('should unpack a valid sdk meta bundle with multiple merchant-id email addr
         'test@test.org.uk',
         'test-test@test.com',
         'test.test@test.com',
-        'test%2Btest@test.com',
+        'test@test@test.com',
     ];
 
-    const sdkUrl = `https://www.paypal.com/sdk/js?client-id=foo&merchant-id=${ emails.join(',') }`;
+    const sdkUrl = `https://www.paypal.com/sdk/js?client-id=foo&merchant-id=${ emails.map(anEmail => encodeURIComponent(anEmail)).join(',') }`;
 
     const { getSDKLoader } = unpackSDKMeta(Buffer.from(JSON.stringify({
         url: sdkUrl
