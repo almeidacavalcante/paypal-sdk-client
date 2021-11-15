@@ -107,11 +107,7 @@ function isLocalUrl(host : string) : boolean {
 }
 
 function validateSDKUrl(sdkUrl : string) {
-    const processedUrl = sdkUrl.replace(/merchant-id=([^\&$]+)/, (_val, match) => {
-        const merchantValue = encodeURIComponent(match).replace(/%40/g, "@").replace(/%3A/g, ":").replace(/%2C/g, ",");
-        return `merchant-id=${merchantValue}`
-    });
-    const { protocol, host, hostname, pathname, hash, query } = urlLib.parse(encodeURI(processedUrl), true);
+    const { protocol, host, hostname, pathname, query, hash } = urlLib.parse(sdkUrl, true);
 
     if (!hostname) {
         throw new Error(`Expected host to be passed for sdk url`);
